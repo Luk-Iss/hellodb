@@ -6,9 +6,9 @@ services:
       - "1521:1521"
       - "4000:4000"
     environment:
-      ORACLE_PASSWORD: "${ORACLE_PASSWORD}"
+      ORACLE_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
       APP_USER: HELLO
-      APP_USER_PASSWORD: "${APP_USER_PASSWORD}"
+      APP_USER_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
     healthcheck:
       test: ["CMD", "healthcheck.sh"]
       interval: 10s
