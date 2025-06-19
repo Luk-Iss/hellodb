@@ -45,7 +45,7 @@ jobs:
     - name: Start Oracle Database (using Docker Compose)
       run: |
         # Použije docker-compose.yml z kořene tvého projektu
-        docker-compose up -d
+        docker compose up -d
         # Počkej chvíli, než se databáze plně inicializuje a je připravena přijímat spojení
         # Toto je kritické! Může to trvat 30-60 sekund, někdy i déle.
         # Následující příkaz bude čekat, dokud DB nebude poslouchat na portu 1521
