@@ -1,0 +1,75 @@
+name: Spring Boot CI/CD
+
+on:
+  push:
+    branches:
+      - main # Spustí workflow při pushnutí na větev 'main'
+  pull_request:
+    branches:
+      - main # Spustí workflow při otevření Pull Requestu do 'main'
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest # Běží na nejnovější verzi Ubuntu
+    
+    # Tyto proměnné prostředí budou dostupné pro všechny kroky v tomto jobu
+    env:
+      SPRING_DATASOURCE_USERNAME: ${{ secrets.ORACLE_DB_USERNAME }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@localhost:1521/XEPDB1 # Dočasně localhost, viz poznámka níže
+
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4 # Naklonuje repozitář na runner
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin' # Doporučené OpenJDK distribuce
+        cache: 'maven' # Kešuje Maven závislosti pro rychlejší buildy
+
+    - name: Build and Run Unit Tests
+      run: |
+        mvn -B package -DskipTests=false # Sestaví projekt a spustí unit testy
+        # -B pro "batch mode" (méně verbózní výstup)
+        # -DskipTests=false zajistí, že se testy spustí (výchozí pro 'package' je spouštět)
+
+    # --- Kroky pro spuštění Docker Compose a integrační testy ---
+    # Toto vyžaduje Docker a Docker Compose na runneru
+    - name: Install Docker Compose
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y docker-compose
+
+    - name: Start Oracle Database (using Docker Compose)
+      run: |
+        # Použije docker-compose.yml z kořene tvého projektu
+        docker-compose up -d
+        # Počkej chvíli, než se databáze plně inicializuje a je připravena přijímat spojení
+        # Toto je kritické! Může to trvat 30-60 sekund, někdy i déle.
+        # Následující příkaz bude čekat, dokud DB nebude poslouchat na portu 1521
+        # Pro reálné použití by se použila spolehlivější kontrola připravenosti DB
+        sleep 60 # Uprav podle potřeby, dokud nebude DB připravena
+      # ENV proměnné potřebné pro docker-compose, pokud používáš v něm proměnné
+      # env:
+      #   ORACLE_DB_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }} # Pokud je potřeba pro docker-compose.yml
+
+    - name: Run Integration Tests
+      run: |
+        # Spustí pouze integrační testy (pokud máš konvenci např. *IntegrationTest.java)
+        # Jinak mvn test spustí všechny testy
+        mvn test -Dtest=*IntegrationTest.java # Spustí jen testy končící na IntegrationTest.java
+      # Proměnné prostředí pro tvou Spring Boot aplikaci, aby se připojila k DB
+      # Důležité: 'localhost' zde v kontextu GitHub Actions runneru odkazuje na runner.
+      # Pokud běžíš DB v Docker Compose ve stejném jobu, Docker Compose vytvoří vlastní síť.
+      # Zde by 'localhost' mělo fungovat pro Docker Compose spuštěný na témže runneru.
+      env:
+        SPRING_DATASOURCE_USERNAME: ${{ secrets.ORACLE_DB_USERNAME }}
+        SPRING_DATASOURCE_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+        SPRING_DATASOURCE_URL: jdbc:oracle:thin:@localhost:1521/XEPDB1 # Otestuj s localhost, jinak pouzij nazev sluzby z docker-compose.yml (napr. @oracle-db:1521/XEPDB1)
+
+    - name: Stop Docker Compose
+      if: always() # Zajišťuje, že se tento krok spustí i v případě selhání předchozích kroků
+      run: |
+        docker-compose down # Zastaví a odstraní kontejnery
