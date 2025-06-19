@@ -72,4 +72,4 @@ jobs:
     - name: Stop Docker Compose
       if: always() # Zajišťuje, že se tento krok spustí i v případě selhání předchozích kroků
       run: |
-        docker-compose down # Zastaví a odstraní kontejnery
+        docker compose down # Zastaví a odstraní kontejnery
