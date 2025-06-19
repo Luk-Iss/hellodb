@@ -1,0 +1,8 @@
+CREATE OR REPLACE FUNCTION hello_from_java (
+    p_name IN VARCHAR2 -- Vstupní proměnná
+) RETURN VARCHAR2 AS     -- Výstupní proměnná
+LANGUAGE JAVA
+NAME 'HelloOracle.sayHello(java.lang.String) return java.lang.String';
+/
+
+SHOW ERRORS FUNCTION hello_from_java;

@@ -1,0 +1,7 @@
+CREATE OR REPLACE FUNCTION hello (p_name IN VARCHAR2)
+RETURN VARCHAR2
+IS
+BEGIN
+    RETURN 'Ahoj, ' || p_name || '! Zdraví tě Oracle databáze.';
+END;
+/

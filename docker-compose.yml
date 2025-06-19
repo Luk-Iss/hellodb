@@ -1,0 +1,19 @@
+services:
+  oracle:
+    container_name: oracle_db
+    image: gvenzl/oracle-free:23-full-faststart
+    ports:
+      - "1521:1521"
+      - "4000:4000"
+    environment:
+      ORACLE_PASSWORD: "${ORACLE_PASSWORD}"
+      APP_USER: HELLO
+      APP_USER_PASSWORD: "${APP_USER_PASSWORD}"
+    healthcheck:
+      test: ["CMD", "healthcheck.sh"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+    volumes:
+      - ./sql:/container-entrypoint-initdb.d

@@ -1,0 +1,26 @@
+CREATE TABLE documents (
+    document_id       NUMBER GENERATED ALWAYS AS IDENTITY,
+    document_name     VARCHAR2(100),
+    document_content  VARCHAR2(32767), -- Toto je "extended" sloupec
+    creation_date     DATE DEFAULT SYSDATE,
+    CONSTRAINT pk_documents PRIMARY KEY (document_id)
+);
+
+-- Vložíme nějaká testovací data
+INSERT INTO documents (document_name, document_content)
+VALUES ('My First Long Document', RPAD('This is a very long text, ' || SYSDATE || ' ', 10000, 'ABCDEFG'));
+
+INSERT INTO documents (document_name, document_content)
+VALUES ('Another Document', RPAD('This document is even longer, ' || SYSDATE || ' ', 30000, 'XYZ'));
+
+COMMIT;
+
+-- Zobrazení dat
+SELECT document_id, document_name, LENGTH(document_content) AS content_length, creation_date
+FROM documents;
+
+-- Můžeš také zkontrolovat délku sloupce v USER_TAB_COLUMNS
+SELECT column_name, data_type, data_length
+FROM user_tab_columns
+WHERE table_name = 'DOCUMENTS' AND column_name = 'DOCUMENT_CONTENT';
+-- Měl bys vidět DATA_LENGTH jako 32767
