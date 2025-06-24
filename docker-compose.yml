@@ -1,5 +1,25 @@
+version: '3.8'
 services:
-  oracle:
+  springboot-app:
+    build:
+      context: .
+      dockerfile: Dockerfile_springboot
+    env_file:
+      - ./.env
+    environment:
+      SPRING_DATASOURCE_USERNAME: HELLO
+      SPRING_DATASOURCE_URL: jdbc:oracle:thin:@oracle_db:1521/FREEPDB1
+    ports:
+      - "8080:8080"
+    volumes:
+      - .:/app
+    working_dir: /app
+    command: >
+      bash -c "./mvnw clean install -DskipTests && java -jar target/*.jar"
+    depends_on:
+      oracle_db:
+        condition: service_healthy
+  oracle_db:
     container_name: oracle_db
     image: gvenzl/oracle-free:23-full-faststart
     ports:

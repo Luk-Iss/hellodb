@@ -1,0 +1,23 @@
+# Dockerfile_springboot (vrácení do "produkčního" stavu po debugu)
+# Použijte Maven obraz pro build
+FROM maven:3.8.5-openjdk-17 AS build
+WORKDIR /app
+COPY pom.xml .
+COPY src ./src
+COPY .mvn .mvn/
+COPY mvnw .
+COPY mvnw.cmd .
+# COPY bin ./bin
+
+RUN chmod +x mvnw
+RUN ./mvnw clean install -DskipTests
+
+# --- Fáze spuštění ---
+FROM openjdk:17-jdk-slim
+WORKDIR /app
+
+# Zkopíruj vygenerovaný JAR soubor s názvem app.jar
+COPY --from=build /app/target/app.jar .
+
+# Spusť JAR soubor
+CMD ["java", "-jar", "app.jar"]
