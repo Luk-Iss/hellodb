@@ -1,9 +1,7 @@
 version: '3.8'
 services:
   springboot-app:
-    build:
-      context: .
-      dockerfile: Dockerfile_springboot
+    image: maven:3.8.5-openjdk-17
     env_file:
       - ./.env
     environment:
@@ -13,9 +11,10 @@ services:
       - "8080:8080"
     volumes:
       - .:/app
+      - ~/.m2:/root/.m2
     working_dir: /app
     command: >
-      bash -c "./mvnw clean install -DskipTests && java -jar target/*.jar"
+      bash -c "./mvnw clean install && java -jar target/*.jar"
     depends_on:
       oracle_db:
         condition: service_healthy
@@ -30,10 +29,10 @@ services:
       APP_USER: HELLO
       APP_USER_PASSWORD: "${SPRING_DATASOURCE_PASSWORD}"
     healthcheck:
-      test: ["CMD", "healthcheck.sh"]
+      test: ["CMD", "healthcheck2.sh"]
       interval: 10s
       timeout: 5s
       retries: 10
-      start_period: 5s
+      start_period: 180s
     volumes:
       - ./sql:/container-entrypoint-initdb.d
