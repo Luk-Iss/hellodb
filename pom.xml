@@ -6,7 +6,8 @@
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
 		<version>3.5.0</version>
-		<relativePath/> </parent>
+		<relativePath/> <!-- lookup parent from repository -->
+	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>hellodb</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
@@ -29,7 +30,11 @@
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-    </properties>
+		<!-- Verze pluginů -->
+		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
+		<maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
+		<docker-maven-plugin.version>0.43.1</docker-maven-plugin.version>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
@@ -49,20 +54,7 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-            <exclusions>
-                <exclusion>
-                    <groupId>org.mockito</groupId>
-                    <artifactId>mockito-core</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mockito</groupId>
-                    <artifactId>mockito-junit-jupiter</artifactId>
-                </exclusion>
-                <exclusion>
-                    <groupId>org.mockito</groupId>
-                    <artifactId>mockito-inline</artifactId>
-                </exclusion>
-            </exclusions>
+			<!-- Mockito už není explicitně vyloučeno, jak jsi požadoval -->
 		</dependency>
 	</dependencies>
 
@@ -74,6 +66,110 @@
 				<configuration>
 					<finalName>app</finalName>
 				</configuration>
+			</plugin>
+
+			<!-- Maven Surefire Plugin (pro Unit Testy) -->
+			<!-- Spouští testy končící na *Test.java a vylučuje integrační testy -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-surefire-plugin</artifactId>
+				<version>${maven-surefire-plugin.version}</version>
+				<configuration>
+					<includes>
+						<include>**/*Test.java</include>
+					</includes>
+					<excludes>
+						<exclude>**/*IntegrationTest.java</exclude>
+						<exclude>**/*IT.java</exclude> <!-- Standardní konvence pro integrační testy -->
+					</excludes>
+					<!-- Pokud se objeví problémy s Mockitem, lze zde přidat argLine: -->
+					<!-- <argLine>-Djdk.attach.allowAttachSelf=true -Dmockito.enable-inline=false</argLine> -->
+				</configuration>
+			</plugin>
+			
+            <plugin>
+                <groupId>io.fabric8</groupId>
+                <artifactId>docker-maven-plugin</artifactId>
+                <version>${docker-maven-plugin.version}</version>
+                <configuration>
+                    <images>
+                        <image>
+                            <name>gvenzl/oracle-free:23-full-faststart</name>
+                            <alias>oracle_db</alias>
+                            <run>
+                                <ports>
+                                    <port>1521:1521</port>
+                                    <port>4000:4000</port>
+                                </ports>
+                                <env>
+                                    <ORACLE_PASSWORD>${env.SPRING_DATASOURCE_PASSWORD}</ORACLE_PASSWORD>
+                                    <APP_USER>HELLO</APP_USER>
+                                    <APP_USER_PASSWORD>${env.SPRING_DATASOURCE_PASSWORD}</APP_USER_PASSWORD>
+                                </env>
+                                <volumes>
+                                   <bind>
+                                      <volume>./sql:/container-entrypoint-initdb.d</volume>
+                                   </bind>
+                                </volumes>
+                                <wait>
+                                    <log>DATABASE IS READY TO USE!</log>
+                                    <time>300000</time>
+                                </wait>
+                                <log>
+                                    <prefix>ORACLE_LOG</prefix>
+                                    <color>yellow</color>
+                                </log>
+                            </run>
+                        </image>
+                    </images>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>start-docker-containers</id>
+                        <phase>pre-integration-test</phase>
+                        <goals>
+                            <goal>start</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>stop-docker-containers</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>stop</goal>
+                        </goals>
+                    </execution>
+                    <execution>
+                        <id>remove-docker-containers</id>
+                        <phase>post-integration-test</phase>
+                        <goals>
+                            <goal>remove</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+			<!-- Maven Failsafe Plugin (pro Integrační Testy) -->
+			<!-- Spouští testy končící na *IntegrationTest.java nebo *IT.java -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-failsafe-plugin</artifactId>
+				<version>${maven-failsafe-plugin.version}</version>
+				<executions>
+					<execution>
+						<goals>
+							<goal>integration-test</goal>
+							<goal>verify</goal>
+						</goals>
+						<configuration>
+							<includes>
+								<include>**/*IntegrationTest.java</include>
+								<include>**/*IT.java</include>
+							</includes>
+							<!-- Pokud se objeví problémy s Mockitem, lze zde přidat argLine: -->
+							<!-- <argLine>-Djdk.attach.allowAttachSelf=true -Dmockito.enable-inline=false</argLine> -->
+						</configuration>
+					</execution>
+				</executions>
 			</plugin>
 		</plugins>
 	</build>

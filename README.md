@@ -1,30 +1,24 @@
 # Aplikace
 
-## Start pomocí docker-compose - jednoduchý, ale nanic
+## První start v bash
 
 ```bash
-git clone https://github.com/Luk-Iss/hellodb.git
+export SPRING_DATASOURCE_PASSWORD=něco z .env
 ```
 
 ```bash
-cd hellodb
+mvn clean install
 ```
-
-.env
-
-```env
-    SPRING_DATASOURCE_PASSWORD=your_secure_password
-```
-
-Až tento příkaz skončí, lze jít na další krok
 
 ```bash
-date +"%T" && docker-compose up --build -d && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "neapp ..."; sleep 5; done && date +"%T" && echo "Databáze a aplikace jsou připravené k použití!"
+date +"%T" && docker-compose up -d --no-deps oracle_db && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && date +"%T" && echo "Db ready!"
+```
+
+```bash
+mvn spring-boot:run
 ```
 
 * [http://localhost:8080/hello?name=Gemini](http://localhost:8080/hello?name=Gemini)
-
-Úklid
 
 ```bash
 docker-compose down
@@ -86,6 +80,40 @@ date +"%T" && docker-compose up -d --no-deps oracle_db && while ! docker-compose
 ```bash
 docker-compose down
 ```
+
+
+## Vše dolů je odpad
+## Start pomocí docker-compose - jednoduchý, ale nanic
+
+```bash
+git clone https://github.com/Luk-Iss/hellodb.git
+```
+
+```bash
+cd hellodb
+```
+
+.env
+
+```env
+    SPRING_DATASOURCE_PASSWORD=your_secure_password
+```
+
+Až tento příkaz skončí, lze jít na další krok
+
+```bash
+date +"%T" && docker-compose up --build -d && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "neapp ..."; sleep 5; done && date +"%T" && echo "Databáze a aplikace jsou připravené k použití!"
+```
+
+* [http://localhost:8080/hello?name=Gemini](http://localhost:8080/hello?name=Gemini)
+
+Úklid
+
+```bash
+docker-compose down
+```
+
+
 
 ## Kompost (někdy nazýváno užitečné příkazy)
 
