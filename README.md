@@ -63,7 +63,7 @@ cat .env
 Spustit db (asi 3 minuty)
 
 ```bash
-date +"%T" && docker-compose up -d oracle_db && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && date +"%T" && echo "Db ready!"
+date +"%T" && docker-compose up -d --no-deps oracle_db && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && date +"%T" && echo "Db ready!"
 ```
 
 * Run -> Run Configurations
@@ -92,7 +92,7 @@ docker-compose down
 Toto jen databáze
 
 ```bash
-    docker-compose up -d oracle_db
+    docker-compose up -d --no-deps oracle_db
 ```
 
 Toto db i app

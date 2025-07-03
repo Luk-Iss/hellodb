@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   springboot-app:
-    image: maven:3.8.5-openjdk-17
+    image: eclipse-temurin:17-jdk-noble
     env_file:
       - ./.env
     environment:
