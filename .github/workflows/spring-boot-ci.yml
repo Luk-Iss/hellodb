@@ -15,8 +15,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      # Proměnná pro heslo k databázi. Doporučuji ji nastavit jako GitHub Secret.
-      SPRING_DATASOURCE_PASSWORD: ${{ secrets.ORACLE_DB_PASSWORD }}
+      SPRING_DATASOURCE_PASSWORD: ${{ secrets.SPRING_DATASOURCE_PASSWORD }}
 
     steps:
       - name: Checkout code
