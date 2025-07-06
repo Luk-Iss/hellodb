@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 // @TestPropertySource(locations = "classpath:application.properties") // Otestuj bez této anotace, jak jsme si říkali dříve
-class HelloControllerIntegrationTest {
+class HelloControlIT {
 
     // Tato anotace zajistí, že Spring Boot spustí aplikaci na náhodném volném portu
     @LocalServerPort

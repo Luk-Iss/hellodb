@@ -5,34 +5,18 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.5.0</version>
-		<relativePath/> <!-- lookup parent from repository -->
+		<version>3.5.3</version>
+		<relativePath/>
 	</parent>
 	<groupId>com.example</groupId>
 	<artifactId>hellodb</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>hellodb</name>
 	<description>Demo project for Spring Boot</description>
-	<url/>
-	<licenses>
-		<license/>
-	</licenses>
-	<developers>
-		<developer/>
-	</developers>
-	<scm>
-		<connection/>
-		<developerConnection/>
-		<tag/>
-		<url/>
-	</scm>
 	<properties>
 		<java.version>17</java.version>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-		<!-- Verze pluginů -->
-		<maven-surefire-plugin.version>3.5.3</maven-surefire-plugin.version>
-		<maven-failsafe-plugin.version>3.5.3</maven-failsafe-plugin.version>
 		<docker-maven-plugin.version>0.43.1</docker-maven-plugin.version>
 	</properties>
 	<dependencies>
@@ -54,7 +38,6 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-test</artifactId>
 			<scope>test</scope>
-			<!-- Mockito už není explicitně vyloučeno, jak jsi požadoval -->
 		</dependency>
 	</dependencies>
 
@@ -68,22 +51,16 @@
 				</configuration>
 			</plugin>
 
-			<!-- Maven Surefire Plugin (pro Unit Testy) -->
-			<!-- Spouští testy končící na *Test.java a vylučuje integrační testy -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
-				<version>${maven-surefire-plugin.version}</version>
 				<configuration>
 					<includes>
 						<include>**/*Test.java</include>
 					</includes>
 					<excludes>
-						<exclude>**/*IntegrationTest.java</exclude>
-						<exclude>**/*IT.java</exclude> <!-- Standardní konvence pro integrační testy -->
+						<exclude>**/*IT.java</exclude>
 					</excludes>
-					<!-- Pokud se objeví problémy s Mockitem, lze zde přidat argLine: -->
-					<!-- <argLine>-Djdk.attach.allowAttachSelf=true -Dmockito.enable-inline=false</argLine> -->
 				</configuration>
 			</plugin>
 			
@@ -148,12 +125,9 @@
                 </executions>
             </plugin>
             
-			<!-- Maven Failsafe Plugin (pro Integrační Testy) -->
-			<!-- Spouští testy končící na *IntegrationTest.java nebo *IT.java -->
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
-				<version>${maven-failsafe-plugin.version}</version>
 				<executions>
 					<execution>
 						<goals>
@@ -162,11 +136,8 @@
 						</goals>
 						<configuration>
 							<includes>
-								<include>**/*IntegrationTest.java</include>
 								<include>**/*IT.java</include>
 							</includes>
-							<!-- Pokud se objeví problémy s Mockitem, lze zde přidat argLine: -->
-							<!-- <argLine>-Djdk.attach.allowAttachSelf=true -Dmockito.enable-inline=false</argLine> -->
 						</configuration>
 					</execution>
 				</executions>

@@ -3,7 +3,10 @@
 ## První start v bash
 
 ```bash
-export SPRING_DATASOURCE_PASSWORD=něco z .env
+# .env obsahuje 
+#SPRING_DATASOURCE_PASSWORD=vygenerovaneheslo
+. .env
+export SPRING_DATASOURCE_PASSWORD
 ```
 
 ```bash
@@ -11,8 +14,10 @@ mvn clean install
 ```
 
 ```bash
-date +"%T" && docker-compose up -d --no-deps oracle_db && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && date +"%T" && echo "Db ready!"
+mvn docker:start@start-docker-containers
 ```
+
+Následující krok trvá asi 3 minuty
 
 ```bash
 mvn spring-boot:run
@@ -21,7 +26,11 @@ mvn spring-boot:run
 * [http://localhost:8080/hello?name=Gemini](http://localhost:8080/hello?name=Gemini)
 
 ```bash
-docker-compose down
+mvn docker:stop@stop-docker-containers
+```
+
+```bash
+mvn docker:remove@remove-docker-containers
 ```
 
 
@@ -56,9 +65,8 @@ cat .env
 
 Spustit db (asi 3 minuty)
 
-```bash
-date +"%T" && docker-compose up -d --no-deps oracle_db && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && date +"%T" && echo "Db ready!"
-```
+jako pro mvn
+
 
 * Run -> Run Configurations
 * Spring Boot App -> už by tam mělo být hellodb (po prvním pokusu o spuštění)
@@ -77,74 +85,7 @@ date +"%T" && docker-compose up -d --no-deps oracle_db && while ! docker-compose
 
 * Po otestování nezapomenout vypnout v STS pomocí stop button
 
-```bash
-docker-compose down
-```
-
-
-## Vše dolů je odpad
-## Start pomocí docker-compose - jednoduchý, ale nanic
-
-```bash
-git clone https://github.com/Luk-Iss/hellodb.git
-```
-
-```bash
-cd hellodb
-```
-
-.env
-
-```env
-    SPRING_DATASOURCE_PASSWORD=your_secure_password
-```
-
-Až tento příkaz skončí, lze jít na další krok
-
-```bash
-date +"%T" && docker-compose up --build -d && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "nedb ..."; sleep 5; done && while ! docker-compose logs 2>&1 | grep -q "DATABASE IS READY TO USE!"; do echo "neapp ..."; sleep 5; done && date +"%T" && echo "Databáze a aplikace jsou připravené k použití!"
-```
-
-* [http://localhost:8080/hello?name=Gemini](http://localhost:8080/hello?name=Gemini)
-
-Úklid
-
-```bash
-docker-compose down
-```
-
-
-
-## Kompost (někdy nazýváno užitečné příkazy)
-
-Toto jen databáze
-
-```bash
-    docker-compose up -d --no-deps oracle_db
-```
-
-Toto db i app
-
-```bash
-    docker-compose up --build -d
-```
-
-Tento příkaz lze ukončit Ctrl-c a vše běží dál
-
-```bash
-    docker-compose logs -f
-```
-
-V logu musí být řetězce:
-
-* Started HellodbApplication
-* DATABASE IS READY TO USE!
-
-```
-docker-compose logs --no-color > docker-compose.log
-vimdiff docker-compose.log  $(ls -t docker-compose.*.log | head -n 1)
-mv docker-compose.log docker-compose.$(date +"%y%m%d%H%M%S").log
-```
+* Vypnout db jako pro mvn
 
 # Připojení
 
